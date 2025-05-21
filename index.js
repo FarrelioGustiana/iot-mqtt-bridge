@@ -33,19 +33,21 @@ mqttClient.on('message', async (topic, message) => {
     
     try {
         const data = JSON.parse(message.toString());
-        const waterVal = data.water;
+        const { ph, moisture, tds } = data;
 
-        await db.collection('water').doc('sensor').set({
-            value: waterVal,
+        await db.collection('sensors').doc('readings').set({
+            ph: ph,
+            moisture: moisture,
+            tds: tds,
             timeStamp: admin.firestore.FieldValue.serverTimestamp()
         });
 
-        console.log('Data successfully written to firestore!');
-        console.log(data, message.toString());
+        console.log('Data successfully written to Firestore!');
     } catch (error) {
-        console.error('Error parsing JSON or Writing to firestore', error)
+        console.error('Error parsing JSON or writing to Firestore:', error);
     }
 });
+
 
 app.use(express.json());
 app.get('/', (req, res) => {
